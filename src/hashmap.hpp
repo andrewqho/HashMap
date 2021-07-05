@@ -15,6 +15,11 @@ class HashMap
     public:
         HashMap(size_t init_capacity){
             entries = new Entry<K, V> *[init_capacity];
+
+            for(int i = 0; i < init_capacity; i++){
+                entries[i] = NULL;
+            }
+
             num_entries = 0;
             capacity = init_capacity;
         }
@@ -33,22 +38,26 @@ class HashMap
             
             // Allocate a new array of Entry pointer objects
             entries = new Entry<K, V> *[2*capacity];
-            size_t idx;
+
+            for(int i = 0; i < 2*capacity; i++){
+                entries[i] = NULL;
+            }
+
             // Put all entries into new_entries
             for(int i = 0; i < capacity; i++){
                 if(old_entries[i] == NULL){
                     continue;
                 }
                 // Get the shit
-                K key = entries[i]->getKey();
-                V value = entries[i]->getValue();
+                K key = old_entries[i]->getKey();
+                V value = old_entries[i]->getValue();
 
-                size_t hash_val = entries[i]->getHash();
-                idx = hash_val ^ capacity;
-
+                size_t hash_val = old_entries[i]->getHash();
+                size_t idx = hash_val & (2*capacity-1);
+                
                 // Put the key value pair into the new entry table
                 while(entries[idx] != NULL && !entries[idx]->isEmpty()){
-                    idx = (idx + 1) & (capacity-1);
+                    idx = (idx + 1) & (2*capacity-1);
                 }
 
                 entries[idx] = new Entry<K, V>(key, value, hash_val);
@@ -59,20 +68,22 @@ class HashMap
 
             // Remove old entries
             delete old_entries;
+
+            capacity *= 2;
         }
         
         void put(K const &key, V const &value){
-            // Hash the key and get the index
-            size_t hash_val = hash_func(key);
-            size_t idx = hash_val & (capacity-1);
-            
-            if(find_index(key, idx) != -1){
-                return;
-            }
             if(num_entries > MAX_LOAD*capacity){
                 reallocate();
             }
 
+            // Hash the key and get the index
+            size_t hash_val = hash_func(key);
+            size_t idx = hash_val & (capacity-1);
+            if(find_index(key, idx) != -1){
+                return;
+            }
+            
             while(entries[idx] != NULL && !entries[idx]->isEmpty()){
                 if(entries[idx]->getKey() == key){
                     return;
@@ -95,11 +106,9 @@ class HashMap
             return -1;
         }
 
-
         bool get(K const &key, V &value){
             size_t hash_val = hash_func(key);
             size_t idx = hash_val & (capacity-1);
-
             idx = find_index(key, idx);
             if(idx != -1){
                 value = entries[idx]->getValue();
