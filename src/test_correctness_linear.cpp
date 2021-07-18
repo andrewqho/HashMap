@@ -15,7 +15,7 @@ const size_t LARGE_SIZE = pow(2, 15);
 
 const size_t MAX_ELEM = pow(2, 10);
 
-bool is_equal(LinearMap<int, int, GenericHash<int> > &lmap, std::unordered_map<int, int> &umap){
+bool is_equal(LinearMap<int, int> &lmap, std::unordered_map<int, int> &umap){
 
     for (auto i : lmap){
         int key = i.getKey();
@@ -38,7 +38,7 @@ bool is_equal(LinearMap<int, int, GenericHash<int> > &lmap, std::unordered_map<i
 }
 
 void test_insert(){
-    LinearMap<int, int, GenericHash<int> > lmap(MEDIUM_SIZE);
+    LinearMap<int, int> lmap(MEDIUM_SIZE);
     std::unordered_map<int, int> umap;
     
     for(int i = 1; i < 100; i++){
@@ -50,7 +50,7 @@ void test_insert(){
 }
 
 void test_duplicate_keys(){
-    LinearMap<int, int, GenericHash<int> > lmap(MEDIUM_SIZE);
+    LinearMap<int, int> lmap(MEDIUM_SIZE);
     std::unordered_map<int, int> umap;
 
     for(int i = 0; i < MEDIUM_SIZE/2; i++){
@@ -68,7 +68,7 @@ void test_duplicate_keys(){
 }
 
 void test_reallocation(){
-    LinearMap<int, int, GenericHash<int> > lmap(SMALL_SIZE);
+    LinearMap<int, int> lmap(SMALL_SIZE);
     std::unordered_map<int, int> umap;
 
     for(int i = 0; i < MEDIUM_SIZE; i++){
@@ -81,7 +81,7 @@ void test_reallocation(){
 }
 
 void test_remove(){
-    LinearMap<int, int, GenericHash<int> > lmap(SMALL_SIZE);
+    LinearMap<int, int> lmap(SMALL_SIZE);
     std::unordered_map<int, int> umap;
     std::vector<int> nums;
     
@@ -113,7 +113,7 @@ void test_remove(){
 }
 
 void test_interleaved1(){
-    LinearMap<int, int, GenericHash<int> > lmap(SMALL_SIZE);
+    LinearMap<int, int> lmap(SMALL_SIZE);
     std::unordered_map<int, int> umap;
     size_t count = 0;
     for(int i = 0; i < LARGE_SIZE; i++){
@@ -152,7 +152,7 @@ void test_interleaved1(){
 }
 
 void test_interleaved2(){
-    LinearMap<int, int, GenericHash<int> > lmap(SMALL_SIZE);
+    LinearMap<int, int> lmap(SMALL_SIZE);
     std::unordered_map<int, int> umap;
     size_t count = 0;
     for(int i = 0; i < LARGE_SIZE; i++){

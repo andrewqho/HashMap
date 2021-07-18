@@ -1,3 +1,6 @@
+#ifndef ENTRY_HPP 
+#define ENTRY_HPP
+
 #include <stdlib.h>
 
 enum State
@@ -81,3 +84,5 @@ private:
     // Store state
     State state;
 };
+
+#endif

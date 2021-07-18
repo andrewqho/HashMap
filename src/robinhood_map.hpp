@@ -1,3 +1,6 @@
+#ifndef ROBINHOOD_MAP_HPP 
+#define ROBINHOOD_MAP_HPP
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -5,15 +8,15 @@
 #include "hashes.hpp"
 using namespace std;
 
-const double MAX_LOAD = 0.5;
 template <typename K, typename V, typename H = GenericHash<K> >
 class RobinhoodMap
 {
     public:
-        RobinhoodMap(size_t init_capacity) : hash_func(){   
+        RobinhoodMap(size_t init_capacity, double max_load=0.5) : hash_func(){   
             entries = new Entry<K, V>[init_capacity];
             num_entries = 0;
             capacity = init_capacity;
+            load_factor = max_load;
         }
         // Destructor
         ~RobinhoodMap(){
@@ -23,7 +26,7 @@ class RobinhoodMap
             entries = new Entry<K, V>[rmap.getCapacity()];
             num_entries = 0;
             capacity = rmap.getCapacity();
-            
+            load_factor = rmap.getLoadFactor();
             // insert all entries into new_entries
             for(auto i : rmap){
                 K key = i.getKey();
@@ -84,7 +87,7 @@ class RobinhoodMap
         };
 
         void insert(K const &key, V const &value){
-            if(num_entries > MAX_LOAD*capacity){
+            if(num_entries > load_factor*capacity){
                 reallocate();
             }
 
@@ -126,16 +129,6 @@ class RobinhoodMap
             num_entries++;
         }
 
-        size_t find_index(K const &key, size_t idx){
-            while(entries[idx].isOccupied()){
-                if(entries[idx].key_cmp(key)){
-                    return idx;
-                }
-                idx = (idx + 1) & (capacity-1);
-            }
-            return -1;
-        }
-
         bool emplace(K const &key, V &value){
             size_t hash_val = hash_func(key, capacity);
             size_t idx = hash_val & (capacity-1);
@@ -169,9 +162,6 @@ class RobinhoodMap
                 V next_val = entries[next_idx].getValue();
                 size_t next_hash = entries[next_idx].getHash();
                 size_t next_PSL = entries[next_idx].getPSL();
-                if(key == 1042441){
-                    cout << next_key << endl;
-                }
                 entries[idx].populate(next_key, next_val, next_hash);
                 entries[idx].setPSL(next_PSL - 1);
                 idx = next_idx;
@@ -206,6 +196,17 @@ class RobinhoodMap
         size_t num_entries;
         size_t capacity;
         H hash_func;
+        double load_factor;
+
+        size_t find_index(K const &key, size_t idx){
+            while(entries[idx].isOccupied()){
+                if(entries[idx].key_cmp(key)){
+                    return idx;
+                }
+                idx = (idx + 1) & (capacity-1);
+            }
+            return -1;
+        }
         
         void reallocate(){
             // Calculate new capacity
@@ -259,3 +260,5 @@ class RobinhoodMap
             capacity = new_capacity;
         }
 };
+
+#endif

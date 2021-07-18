@@ -16,7 +16,7 @@ test:
 test_speed: test_speed.o
 	$(CC) $(CFLAGS) -o test_speed test_speed.o
 	
-test_speed.o: test_speed.cpp hashmaps.hpp entry.hpp hashes.hpp
+test_speed.o: test_speed.cpp linear_map.hpp robinhood_map.hpp entry.hpp hashes.hpp
 	$(CC) $(CFLAGS) -c test_speed.cpp
 
 test_correctness_linear: test_correctness_linear.o

@@ -6,7 +6,8 @@
 #include <vector>
 #include <math.h>   
 #include <unordered_map>
-#include "hashmaps.hpp"
+#include "linear_map.hpp"
+#include "robinhood_map.hpp"
 using namespace std;
 
 using std::chrono::steady_clock;
@@ -17,7 +18,7 @@ const size_t SMALL_SIZE = pow(2, 10);
 const size_t MEDIUM_SIZE = pow(2, 15);
 const size_t LARGE_SIZE = pow(2, 20);
 
-const size_t MAX_ELEM = 1000;
+const size_t MAX_ELEM = 10000;
 const size_t STEP_SIZE = MAX_ELEM/10;
 
 double umap_insert_speed(std::unordered_map<size_t, size_t> &umap, std::vector<size_t> keys){
@@ -53,7 +54,7 @@ double umap_remove_speed(std::unordered_map<size_t, size_t> &umap, std::vector<s
     return s_double.count();
 }
 
-double lmap_insert_speed(LinearMap<size_t, size_t, GenericHash<size_t> > &lmap, std::vector<size_t> keys){
+double lmap_insert_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> keys){
     auto t1 = steady_clock::now();
     for(size_t key : keys){
         lmap.insert(key, 1);
@@ -63,7 +64,7 @@ double lmap_insert_speed(LinearMap<size_t, size_t, GenericHash<size_t> > &lmap, 
     return s_double.count();
 }
 
-double lmap_emplace_speed(LinearMap<size_t, size_t, GenericHash<size_t> > &lmap, std::vector<size_t> keys){
+double lmap_emplace_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> keys){
     size_t value;
     size_t sum = 0;
     auto t1 = steady_clock::now();
@@ -76,7 +77,7 @@ double lmap_emplace_speed(LinearMap<size_t, size_t, GenericHash<size_t> > &lmap,
     return s_double.count();
 }
 
-double lmap_remove_speed(LinearMap<size_t, size_t, GenericHash<size_t> > &lmap, std::vector<size_t> keys){
+double lmap_remove_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> keys){
     auto t1 = steady_clock::now();
     for(size_t key : keys){
         lmap.remove(key);
@@ -86,7 +87,7 @@ double lmap_remove_speed(LinearMap<size_t, size_t, GenericHash<size_t> > &lmap, 
     return s_double.count();
 }
 
-double rmap_insert_speed(RobinhoodMap<size_t, size_t, GenericHash<size_t> > &rmap, std::vector<size_t> keys){
+double rmap_insert_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t> keys){
     auto t1 = steady_clock::now();
     for(size_t key : keys){
         rmap.insert(key, 1);
@@ -96,7 +97,7 @@ double rmap_insert_speed(RobinhoodMap<size_t, size_t, GenericHash<size_t> > &rma
     return s_double.count();
 }
 
-double rmap_emplace_speed(RobinhoodMap<size_t, size_t, GenericHash<size_t> > &rmap, std::vector<size_t> keys){
+double rmap_emplace_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t> keys){
     size_t value;
     size_t sum = 0;
     auto t1 = steady_clock::now();
@@ -109,7 +110,7 @@ double rmap_emplace_speed(RobinhoodMap<size_t, size_t, GenericHash<size_t> > &rm
     return s_double.count();
 }
 
-double rmap_remove_speed(RobinhoodMap<size_t, size_t, GenericHash<size_t> > &rmap, std::vector<size_t> keys){
+double rmap_remove_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t> keys){
     auto t1 = steady_clock::now();
     for(size_t key : keys){
         rmap.remove(key);
@@ -126,8 +127,8 @@ void test_insert_speed(){
     benchmark_insert << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t, GenericHash<size_t> > lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t, GenericHash<size_t> > rmap(SMALL_SIZE);
+    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
+    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
     std::unordered_map<size_t, size_t> umap;
 
     for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
@@ -153,8 +154,8 @@ void test_emplace_speed(){
     benchmark_emplace << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t, GenericHash<size_t> > lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t, GenericHash<size_t> > rmap(SMALL_SIZE);
+    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
+    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
     std::unordered_map<size_t, size_t> umap;
 
     for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
@@ -185,8 +186,8 @@ void test_remove_speed(){
     benchmark_remove << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t, GenericHash<size_t> > lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t, GenericHash<size_t> > rmap(SMALL_SIZE);
+    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
+    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
     std::unordered_map<size_t, size_t> umap;
 
     for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
@@ -216,8 +217,8 @@ void test_insert_with_removal_speed(){
     benchmark_insert_with_removal << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t, GenericHash<size_t> > lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t, GenericHash<size_t> > rmap(SMALL_SIZE);
+    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
+    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
     std::unordered_map<size_t, size_t> umap;
 
     for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
@@ -255,8 +256,8 @@ void test_emplace_with_removal_speed(){
     benchmark_emplace_with_removal << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t, GenericHash<size_t> > lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t, GenericHash<size_t> > rmap(SMALL_SIZE);
+    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
+    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
     std::unordered_map<size_t, size_t> umap;
 
     for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){

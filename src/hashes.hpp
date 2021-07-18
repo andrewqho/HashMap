@@ -1,3 +1,6 @@
+#ifndef HASHES_HPP 
+#define HASHES_HPP
+
 #include <iostream>
 #include <iomanip>
 #include <functional>
@@ -25,3 +28,5 @@ struct GenericHash
         return h;
     }
 };
+
+#endif

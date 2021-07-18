@@ -1,3 +1,6 @@
+#ifndef LINEAR_MAP_HPP 
+#define LINEAR_MAP_HPP
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -5,15 +8,15 @@
 #include "hashes.hpp"
 using namespace std;
 
-const double MAX_LOAD = 0.5;
 template <typename K, typename V, typename H = GenericHash<K> >
 class LinearMap
 {
     public:
-        LinearMap(size_t init_capacity) : hash_func(){   
+        LinearMap(size_t init_capacity, double max_load=0.5) : hash_func(){   
             entries = new Entry<K, V>[init_capacity];
             num_entries = 0;
             capacity = init_capacity;
+            load_factor = max_load;
         }
         // Destructor
         ~LinearMap(){
@@ -84,7 +87,7 @@ class LinearMap
         };
 
         void insert(K const &key, V const &value){
-            if(num_entries > MAX_LOAD*capacity){
+            if(num_entries > load_factor*capacity){
                 reallocate();
             }
 
@@ -111,16 +114,6 @@ class LinearMap
             }
             entries[avail_slot].populate(key, value, hash_val);
             num_entries++;
-        }
-
-        size_t find_index(K const &key, size_t idx){
-            while(!entries[idx].isClean()){
-                if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
-                    return idx;
-                }
-                idx = (idx + 1) & (capacity-1);
-            }
-            return -1;
         }
 
         bool emplace(K const &key, V &value){
@@ -175,7 +168,18 @@ class LinearMap
         size_t num_entries;
         size_t capacity;
         H hash_func;
+        double load_factor;
         
+        size_t find_index(K const &key, size_t idx){
+            while(!entries[idx].isClean()){
+                if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
+                    return idx;
+                }
+                idx = (idx + 1) & (capacity-1);
+            }
+            return -1;
+        }
+
         void reallocate(){
             // Calculate new capacity
             size_t new_capacity = 4*capacity;
@@ -210,3 +214,5 @@ class LinearMap
             capacity = new_capacity;
         }
 };
+
+#endif
