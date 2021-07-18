@@ -14,16 +14,16 @@ using std::chrono::steady_clock;
 using std::chrono::duration_cast;
 using std::chrono::duration;
 
-const size_t SMALL_SIZE = pow(2, 10);
-const size_t MEDIUM_SIZE = pow(2, 15);
-const size_t LARGE_SIZE = pow(2, 20);
+const uint64_t SMALL_SIZE = pow(2, 4);
+const uint64_t MEDIUM_SIZE = pow(2, 15);
+const uint64_t LARGE_SIZE = pow(2, 20);
 
-const size_t MAX_ELEM = 10000;
-const size_t STEP_SIZE = MAX_ELEM/10;
+const uint64_t MAX_ELEM = 10000;
+const uint64_t STEP_SIZE = MAX_ELEM/50;
 
-double umap_insert_speed(std::unordered_map<size_t, size_t> &umap, std::vector<size_t> keys){
+double umap_insert_speed(std::unordered_map<uint64_t, uint64_t> &umap, std::vector<uint64_t> keys){
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         umap[key] = 1;    
     }
     auto t2 = steady_clock::now();
@@ -31,11 +31,11 @@ double umap_insert_speed(std::unordered_map<size_t, size_t> &umap, std::vector<s
     return s_double.count();
 }
 
-double umap_emplace_speed(std::unordered_map<size_t, size_t> &umap, std::vector<size_t> keys){
-    size_t value;
-    size_t sum = 0;
+double umap_emplace_speed(std::unordered_map<uint64_t, uint64_t> &umap, std::vector<uint64_t> keys){
+    uint64_t value;
+    uint64_t sum = 0;
     auto t1 = steady_clock::now();
-    for(size_t key: keys){
+    for(uint64_t key: keys){
         umap.emplace(key, value);
         sum += value;
     }
@@ -44,9 +44,9 @@ double umap_emplace_speed(std::unordered_map<size_t, size_t> &umap, std::vector<
     return s_double.count();
 }
 
-double umap_remove_speed(std::unordered_map<size_t, size_t> &umap, std::vector<size_t> keys){
+double umap_remove_speed(std::unordered_map<uint64_t, uint64_t> &umap, std::vector<uint64_t> keys){
     auto t1 = steady_clock::now();
-    for(size_t key: keys){
+    for(uint64_t key: keys){
         umap.erase(key);
     }
     auto t2 = steady_clock::now();
@@ -54,9 +54,9 @@ double umap_remove_speed(std::unordered_map<size_t, size_t> &umap, std::vector<s
     return s_double.count();
 }
 
-double lmap_insert_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> keys){
+double lmap_insert_speed(LinearMap<uint64_t, uint64_t> &lmap, std::vector<uint64_t> keys){
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         lmap.insert(key, 1);
     }
     auto t2 = steady_clock::now();
@@ -64,11 +64,11 @@ double lmap_insert_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> ke
     return s_double.count();
 }
 
-double lmap_emplace_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> keys){
-    size_t value;
-    size_t sum = 0;
+double lmap_emplace_speed(LinearMap<uint64_t, uint64_t> &lmap, std::vector<uint64_t> keys){
+    uint64_t value;
+    uint64_t sum = 0;
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         lmap.emplace(key, value);
         sum += value;
     }
@@ -77,9 +77,9 @@ double lmap_emplace_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> k
     return s_double.count();
 }
 
-double lmap_remove_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> keys){
+double lmap_remove_speed(LinearMap<uint64_t, uint64_t> &lmap, std::vector<uint64_t> keys){
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         lmap.remove(key);
     }
     auto t2 = steady_clock::now();
@@ -87,9 +87,9 @@ double lmap_remove_speed(LinearMap<size_t, size_t> &lmap, std::vector<size_t> ke
     return s_double.count();
 }
 
-double rmap_insert_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t> keys){
+double rmap_insert_speed(RobinhoodMap<uint64_t, uint64_t> &rmap, std::vector<uint64_t> keys){
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         rmap.insert(key, 1);
     }
     auto t2 = steady_clock::now();
@@ -97,11 +97,11 @@ double rmap_insert_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t>
     return s_double.count();
 }
 
-double rmap_emplace_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t> keys){
-    size_t value;
-    size_t sum = 0;
+double rmap_emplace_speed(RobinhoodMap<uint64_t, uint64_t> &rmap, std::vector<uint64_t> keys){
+    uint64_t value;
+    uint64_t sum = 0;
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         rmap.emplace(key, value);
         sum += value;
     }
@@ -110,9 +110,9 @@ double rmap_emplace_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t
     return s_double.count();
 }
 
-double rmap_remove_speed(RobinhoodMap<size_t, size_t> &rmap, std::vector<size_t> keys){
+double rmap_remove_speed(RobinhoodMap<uint64_t, uint64_t> &rmap, std::vector<uint64_t> keys){
     auto t1 = steady_clock::now();
-    for(size_t key : keys){
+    for(uint64_t key : keys){
         rmap.remove(key);
     }
     auto t2 = steady_clock::now();
@@ -127,13 +127,13 @@ void test_insert_speed(){
     benchmark_insert << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
-    std::unordered_map<size_t, size_t> umap;
+    LinearMap<uint64_t, uint64_t> lmap(SMALL_SIZE);
+    RobinhoodMap<uint64_t, uint64_t> rmap(SMALL_SIZE);
+    std::unordered_map<uint64_t, uint64_t> umap;
 
-    for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
+    for(uint64_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
         // Generate keys
-        std::vector<size_t> keys;
+        std::vector<uint64_t> keys;
         for(int j = 0; j < i; j++){
             keys.push_back(j);
         }
@@ -154,13 +154,13 @@ void test_emplace_speed(){
     benchmark_emplace << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
-    std::unordered_map<size_t, size_t> umap;
+    LinearMap<uint64_t, uint64_t> lmap(SMALL_SIZE);
+    RobinhoodMap<uint64_t, uint64_t> rmap(SMALL_SIZE);
+    std::unordered_map<uint64_t, uint64_t> umap;
 
-    for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
+    for(uint64_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
         // Generate keys
-        std::vector<size_t> keys;
+        std::vector<uint64_t> keys;
         for(int j = 0; j < i; j++){
             keys.push_back(j);
         }
@@ -186,13 +186,13 @@ void test_remove_speed(){
     benchmark_remove << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
-    std::unordered_map<size_t, size_t> umap;
+    LinearMap<uint64_t, uint64_t> lmap(SMALL_SIZE);
+    RobinhoodMap<uint64_t, uint64_t> rmap(SMALL_SIZE);
+    std::unordered_map<uint64_t, uint64_t> umap;
 
-    for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
+    for(uint64_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
         // Generate keys
-        std::vector<size_t> keys;
+        std::vector<uint64_t> keys;
         for(int j = 0; j < i; j++){
             keys.push_back(j);
         }
@@ -217,13 +217,13 @@ void test_insert_with_removal_speed(){
     benchmark_insert_with_removal << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
-    std::unordered_map<size_t, size_t> umap;
+    LinearMap<uint64_t, uint64_t> lmap(SMALL_SIZE);
+    RobinhoodMap<uint64_t, uint64_t> rmap(SMALL_SIZE);
+    std::unordered_map<uint64_t, uint64_t> umap;
 
-    for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
+    for(uint64_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
         // Generate keys
-        std::vector<size_t> keys;
+        std::vector<uint64_t> keys;
         for(int j = 0; j < i; j++){
             keys.push_back(j);
         }
@@ -231,7 +231,7 @@ void test_insert_with_removal_speed(){
         rmap_insert_speed(rmap, keys);
         umap_insert_speed(umap, keys);
         
-        std::vector<size_t> keys_to_remove = std::vector<size_t>(keys.begin(), keys.end() - i/2);
+        std::vector<uint64_t> keys_to_remove = std::vector<uint64_t>(keys.begin(), keys.end() - i/2);
 
         std::random_shuffle (keys_to_remove.begin(), keys_to_remove.end());
         
@@ -256,13 +256,13 @@ void test_emplace_with_removal_speed(){
     benchmark_emplace_with_removal << "Num Entries,Linear Map,Robinhood Map,Unordered Map\n";
 
     // Declare hashmaps
-    LinearMap<size_t, size_t> lmap(SMALL_SIZE);
-    RobinhoodMap<size_t, size_t> rmap(SMALL_SIZE);
-    std::unordered_map<size_t, size_t> umap;
+    LinearMap<uint64_t, uint64_t> lmap(SMALL_SIZE);
+    RobinhoodMap<uint64_t, uint64_t> rmap(SMALL_SIZE);
+    std::unordered_map<uint64_t, uint64_t> umap;
 
-    for(size_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
+    for(uint64_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
         // Generate keys
-        std::vector<size_t> keys;
+        std::vector<uint64_t> keys;
         for(int j = 0; j < i; j++){
             keys.push_back(j);
         }
@@ -271,7 +271,7 @@ void test_emplace_with_removal_speed(){
         rmap_insert_speed(rmap, keys);
         umap_insert_speed(umap, keys);
         
-        std::vector<size_t> keys_to_remove = std::vector<size_t>(keys.begin(), keys.end() - i/2);
+        std::vector<uint64_t> keys_to_remove = std::vector<uint64_t>(keys.begin(), keys.end() - i/2);
 
         std::random_shuffle (keys_to_remove.begin(), keys_to_remove.end());
         

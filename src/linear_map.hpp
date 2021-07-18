@@ -182,7 +182,7 @@ class LinearMap
 
         void reallocate(){
             // Calculate new capacity
-            size_t new_capacity = 4*capacity;
+            size_t new_capacity = 2*capacity;
 
             // Store old key value pairs
             Entry<K, V>* old_entries = entries;
