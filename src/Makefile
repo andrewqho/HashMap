@@ -3,22 +3,36 @@
 # *****************************************************
 # Variables to control Makefile operation
  
-CC = clang++
-CFLAGS = -Wall -g
+CC = g++
+CFLAGS = -Wall -g -std=c++11
 
-all: main test
+all: test_speed test_correctness_linear test_correctness_robinhood
 
-test: test.o
-	$(CC) $(CFLAGS) -o test test.o
+test:
+	./test_correctness_linear
+	./test_correctness_robinhood
+	./test_speed
+
+test_speed: test_speed.o
+	$(CC) $(CFLAGS) -o test_speed test_speed.o
 	
-test.o: test.cpp hashmap.hpp entry.hpp hashes.hpp
-	$(CC) $(CFLAGS) -c test.cpp
+test_speed.o: test_speed.cpp hashmaps.hpp entry.hpp hashes.hpp
+	$(CC) $(CFLAGS) -c test_speed.cpp
 
-main: main.o
-	$(CC) $(CFLAGS) -o main main.o
+test_correctness_linear: test_correctness_linear.o
+	$(CC) $(CFLAGS) -o test_correctness_linear test_correctness_linear.o
+	
+test_correctness_linear.o: test_correctness_linear.cpp linear_map.hpp entry.hpp hashes.hpp
+	$(CC) $(CFLAGS) -c test_correctness_linear.cpp
 
-main.o: main.cpp hashmap.hpp entry.hpp hashes.hpp
-	$(CC) $(CFLAGS) -c main.cpp
+test_correctness_robinhood: test_correctness_robinhood.o
+	$(CC) $(CFLAGS) -o test_correctness_robinhood test_correctness_robinhood.o
+	
+test_correctness_robinhood.o: test_correctness_robinhood.cpp robinhood_map.hpp entry.hpp hashes.hpp
+	$(CC) $(CFLAGS) -c test_correctness_robinhood.cpp
 
 clean:
-	rm main.o main test.o test
+	find benchmarks ! -name benchmarks.ipynb -type f -delete 
+	rm test_speed.o test_speed
+	rm test_correctness_linear.o test_correctness_linear
+	rm test_correctness_robinhood.o test_correctness_robinhood

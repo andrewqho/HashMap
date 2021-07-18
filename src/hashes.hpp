@@ -6,7 +6,7 @@
 
 template <typename K>
 struct IntHash {
-    unsigned long operator()(const K& k) const
+    unsigned long operator()(const K& k, const size_t& capacity) const
     {
         return k;
     }
@@ -15,7 +15,7 @@ struct IntHash {
 template <typename K>
 struct GenericHash
 {
-    unsigned long operator()(K const& key) const
+    unsigned long operator()(K const& key, const size_t& capacity) const
     {   
         // Instantiate hash function
         std::hash<K> generic_hash;
