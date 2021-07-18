@@ -12,9 +12,11 @@ std::unordered_map uses a technique called chaining to build its hashmap. You ca
 
 ## Pros and Cons
 
-Chaining is a very simple method to ensure that keys are safely kept in the bucket they're assigned to. In addition, since we can grow the linked list to infinite length, technically we can never run out of space in our hashmap. The static array does not need to be grown. However, this does come with some significant drawbacks. In the case that elements are mapped to a small range of indices, there's a lot of wasted space in the hashmap.
+Chaining is a very simple method to ensure that keys are safely kept in the bucket they're assigned to. In addition, since we can grow the linked list to infinite length, technically we can never run out of space in our hashmap. The static array does not need to be grown. However, this does come with some significant drawbacks. In the case that elements are mapped to a small range of indices, there's a lot of wasted space in the hashmap. Cache performance is also not great with linked lists, since linked list nodes are not (necessarily) adjacent in memory. As you iterate along the chain, you run into a bunch of cache misses.
+
+Our goal is to minimize wasted space and improve cache performance of searches with the following hashmap implementations.
 
 # LinearMap
 
 ## The Implementation
-The first hashmap I implemented uses open addressing with linear probing. Instead of 
+The first hashmap I implemented uses open addressing with linear probing. The idea of open addressing is that key-value pairs can live in slots that it does not necessarily map to. Suppose you want to insert a key-value pair, and the key hashes to index 21. But in index 21, there already exists a key-value pair. Instead of chaining, what we do is we "probe" for an empty slot
