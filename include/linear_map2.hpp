@@ -9,21 +9,21 @@
 using namespace std;
 
 template <typename K, typename V, typename H = GenericHash<K> >
-class LinearMap
+class LinearMap2
 {
     public:
-        LinearMap(size_t init_capacity, double max_load=0.5) : hash_func(){   
-            entries = new Entry<K, V>[init_capacity];
+        LinearMap2(size_t init_capacity, double max_load=0.5) : hash_func(){   
+            entries = new Entry2<K, V>[init_capacity];
             num_entries = 0;
             capacity = init_capacity;
             load_factor = max_load;
         }
         // Destructor
-        ~LinearMap(){
+        ~LinearMap2(){
             delete entries;
         }
-        LinearMap(const LinearMap& lmap){
-            entries = new Entry<K, V>[lmap.getCapacity()];
+        LinearMap2(const LinearMap2& lmap){
+            entries = new Entry2<K, V>[lmap.getCapacity()];
             num_entries = 0;
             capacity = lmap.getCapacity();
             
@@ -42,9 +42,9 @@ class LinearMap
         struct Iterator{
             using iterator_category = std::forward_iterator_tag;
             using difference_type   = int;
-            using value_type        = Entry<K, V>;
-            using pointer           = Entry<K, V>*;  // or also value_type*
-            using reference         = Entry<K, V>&;  // or also value_type&
+            using value_type        = Entry2<K, V>;
+            using pointer           = Entry2<K, V>*;  // or also value_type*
+            using reference         = Entry2<K, V>&;  // or also value_type&
 
             public:
                 Iterator(pointer ptr, size_t idx, size_t capacity): entry_ptr(ptr), curr_idx(idx), max_idx(capacity) {}
@@ -57,7 +57,7 @@ class LinearMap
                 Iterator operator++() { 
                     entry_ptr++;
                     curr_idx++;
-                    while(curr_idx < max_idx && !entry_ptr->isOccupied()){
+                    while(curr_idx < max_idx && !entry_ptr->isInUse()){
                         entry_ptr++;
                         curr_idx++;
                     }
@@ -67,7 +67,7 @@ class LinearMap
                     Iterator tmp = *this;
                     entry_ptr++;
                     curr_idx++;
-                    while(curr_idx < max_idx && !entry_ptr->isOccupied()){
+                    while(curr_idx < max_idx && !entry_ptr->isInUse()){
                         entry_ptr++;
                         curr_idx++;
                     }
@@ -99,7 +99,7 @@ class LinearMap
             while(!entries[idx].isClean()){
                 // Check if the key exists in the 
                 // dictionary, if it does then replace it
-                if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
+                if(entries[idx].isInUse() && entries[idx].key_cmp(key)){
                     entries[idx].populate(key, value, hash_val);
                     return;
                 }
@@ -154,7 +154,7 @@ class LinearMap
 
         Iterator begin() { 
             size_t curr_idx = 0;
-            while(curr_idx < capacity && !entries[curr_idx].isOccupied()){
+            while(curr_idx < capacity && !entries[curr_idx].isInUse()){
                 curr_idx++;
             }
             return Iterator(&entries[curr_idx], curr_idx, capacity); 
@@ -164,7 +164,7 @@ class LinearMap
             return Iterator(&entries[capacity], capacity, capacity);
         }
     private: 
-        Entry<K, V>* entries;
+        Entry2<K, V>* entries;
         size_t num_entries;
         size_t capacity;
         H hash_func;
@@ -172,7 +172,7 @@ class LinearMap
         
         size_t find_index(K const &key, size_t idx){
             while(!entries[idx].isClean()){
-                if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
+                if(entries[idx].isInUse() && entries[idx].key_cmp(key)){
                     return idx;
                 }
                 idx = (idx + 1) & (capacity-1);
@@ -185,14 +185,14 @@ class LinearMap
             size_t new_capacity = 2*capacity;
 
             // Store old key value pairs
-            Entry<K, V>* old_entries = entries;
+            Entry2<K, V>* old_entries = entries;
             
             // Allocate a new array of Entry pointer objects
-            entries = new Entry<K, V>[new_capacity];
+            entries = new Entry2<K, V>[new_capacity];
 
             // insert all entries into new_entries
             for(int i = 0; i < capacity; i++){
-                if(!old_entries[i].isOccupied()){
+                if(!old_entries[i].isInUse()){
                     continue;
                 }
                 // Get the shit

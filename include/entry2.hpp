@@ -3,17 +3,17 @@
 
 #include <stdlib.h>
 
-enum State
+enum State2
    {
       CLEAN,
-      OCCUPIED,
+      IN_USE,
       DIRTY      
    };
 
 template <typename K, typename V>
-class Entry {
+class Entry2 {
 public:
-    Entry() : key(), val(), hash_val(0), PSL(0), state(CLEAN){}
+    Entry2() : key(), val(), hash_val(0), PSL(0), state(CLEAN){}
     
     K& getKey() {
         return key;
@@ -41,9 +41,9 @@ public:
         return state == CLEAN;
     }
     bool isOccupied(){
-        return state == OCCUPIED;
+        return state == IN_USE;
     }
-    State getState() const{
+    State2 getState() const{
         return state;
     }
 
@@ -82,7 +82,7 @@ private:
     // Store probe sequence length
     size_t PSL;
     // Store state
-    State state;
+    State2 state;
 };
 
 #endif
