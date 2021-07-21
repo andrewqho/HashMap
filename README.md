@@ -32,11 +32,14 @@ Our goal is to minimize wasted space and improve cache performance of searches w
 # LinearMap
 
 ## The Implementation
-The first hashmap I implemented uses open addressing with linear probing. The idea of open addressing is that key-value pairs can live in slots that it does not necessarily map to. Suppose you want to insert a key-value pair, and the key hashes to index 21. But in index 21, there already exists a key-value pair. Instead of chaining, what we do is we "probe" for an empty slot and stick it in there instead. When we want to look-up a value, we go to the initial bucket that the key hashes to and check if that slot contains the key. If the slot doesn't, then we continue to probe the same way we did looking for an empty slot. When we want to remove a key-value pair, we mark it with a tombstone, indicating that there used to be a key-value pair, but we removed it. When we go to look up a key, we continue to probe until we see a clean slot, meaning a slot that didn't have any key-value pair in it yet. This is because when we probed before, we could have probed past a a key-value pair that was there before, but was removed. If we don't probe past the tombtone, then there's a chance that the key-value exists later but is now cut off.
+The first hashmap I implemented uses open addressing with linear probing. The idea of open addressing is that key-value pairs can live in slots that it does not necessarily map to. Suppose you want to insert a key-value pair, and the key hashes to index 21. But in index 21, there already exists a key-value pair. Instead of chaining, what we do is we "probe" for an empty slot and stick it in there instead. When we want to look-up a value, we go to the initial bucket that the key hashes to and check if that slot contains the key. If the slot doesn't, then we continue to probe the same way we did looking for an empty slot. 
 
-## Pros and Cons
+Normally, I've seen resources online use tombstones when implementing pure linear open-addressed hashmaps. Tombstones are markers that denote entries that have been used
+
+## Theoretical Performance
 
 Since all of the entries are placed next to one another in a flat array, this means that cache performance should be better. However, with tombstones, it's possible that interleaving insertions and removals results in longer probe sequences than following a linked list. In fact, the worst-case scenario for look-ups, insertions, and removals are actually $O(M)$, where $M$ is the capacity of the hashmap. Since we necessarily have that $M > N$, the Big-O of linear hashmaps are actually worse than that of the chained variety.
+
 
 # Robinhood Map
 
