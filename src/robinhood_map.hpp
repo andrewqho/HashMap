@@ -12,7 +12,8 @@ template <typename K, typename V, typename H = GenericHash<K> >
 class RobinhoodMap
 {
     public:
-        RobinhoodMap(size_t init_capacity, double max_load=0.5) : hash_func(){   
+        RobinhoodMap(size_t init_capacity=1024, double max_load=0.5) : hash_func(){   
+            init_capacity = nextPowerOf2(init_capacity);
             entries = new Entry<K, V>[init_capacity];
             num_entries = 0;
             capacity = init_capacity;
@@ -98,7 +99,7 @@ class RobinhoodMap
             size_t idx = hash_val & (capacity-1);
             int PSL = 0;
 
-            while(!entries[idx].isClean()){
+            while(!entries[idx].isEmpty()){
                 // Check if the key exists in the 
                 // dictionary, if it does then replace it
                 if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
@@ -129,11 +130,8 @@ class RobinhoodMap
             num_entries++;
         }
 
-        bool emplace(K const &key, V &value){
-            size_t hash_val = hash_func(key, capacity);
-            size_t idx = hash_val & (capacity-1);
-            
-            idx = find_index(key, idx);
+        bool emplace(K const &key, V &value){            
+            int idx = find_index(key);
 
             if(idx == -1){
                 return false;
@@ -144,17 +142,14 @@ class RobinhoodMap
         }
 
         bool remove(K const &key){
-            size_t hash_val = hash_func(key, capacity);
-            size_t idx = hash_val & (capacity-1);
-            
-            idx = find_index(key, idx);
+            size_t idx = find_index(key);
 
             if(idx == -1){
                 return false;
             }
             
             // Perform backwards shifting
-            entries[idx].setState(CLEAN);
+            entries[idx].setState(EMPTY);
             
             size_t next_idx = (idx+1) & (capacity - 1);
             while(entries[next_idx].isOccupied() && entries[next_idx].getPSL() > 0){
@@ -165,9 +160,11 @@ class RobinhoodMap
                 entries[idx].populate(next_key, next_val, next_hash);
                 entries[idx].setPSL(next_PSL - 1);
                 idx = next_idx;
-                entries[idx].setState(CLEAN);
+                entries[idx].setState(EMPTY);
                 next_idx = (idx+1) & (capacity - 1);
             }
+
+            num_entries--;
 
             return true;
         }
@@ -197,8 +194,22 @@ class RobinhoodMap
         size_t capacity;
         H hash_func;
         double load_factor;
+        
+        unsigned int nextPowerOf2(unsigned int n){
+            n--;
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            n++;
+            return n;
+        }
 
-        size_t find_index(K const &key, size_t idx){
+        size_t find_index(K const &key){
+            size_t hash_val = hash_func(key, capacity);
+            int idx = hash_val & (capacity-1);
+            
             while(entries[idx].isOccupied()){
                 if(entries[idx].key_cmp(key)){
                     return idx;
@@ -231,7 +242,7 @@ class RobinhoodMap
                 size_t idx = hash_val & (new_capacity-1);
                 int PSL = 0;
 
-                while(!entries[idx].isClean()){
+                while(!entries[idx].isEmpty()){
                     // Check if we should swap
                     if(entries[idx].getPSL() < PSL){
                         K temp_key = entries[idx].getKey();

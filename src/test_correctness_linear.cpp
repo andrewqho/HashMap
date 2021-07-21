@@ -18,9 +18,12 @@ const size_t MAX_ELEM = pow(2, 10);
 bool is_equal(LinearMap<int, int> &lmap, std::unordered_map<int, int> &umap){
 
     for (auto i : lmap){
-        int key = i.getKey();
-        int value = i.getValue();
+        int& key = i.getKey();
+        int& value = i.getValue();
 
+        if(umap.count(key) == 0){
+            cout << key << " not found in umap" << endl;
+        }
         assert(umap.count(key));
         assert(umap.at(key) == value);
     }

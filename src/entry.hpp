@@ -5,15 +5,14 @@
 
 enum State
    {
-      CLEAN,
-      OCCUPIED,
-      DIRTY      
+      EMPTY,
+      OCCUPIED    
    };
 
 template <typename K, typename V>
 class Entry {
 public:
-    Entry() : key(), val(), hash_val(0), PSL(0), state(CLEAN){}
+    Entry() : key(), val(), hash_val(0), PSL(0), state(EMPTY){}
     
     K& getKey() {
         return key;
@@ -34,11 +33,8 @@ public:
     bool key_cmp(K const &candidate_key){
         return candidate_key == key;
     }
-    bool isDirty(){
-        return state == DIRTY;
-    }
-    bool isClean(){
-        return state == CLEAN;
+    bool isEmpty(){
+        return state == EMPTY;
     }
     bool isOccupied(){
         return state == OCCUPIED;
@@ -63,16 +59,13 @@ public:
         PSL = new_PSL;
     }
 
-    void clear(){
-        state = DIRTY;
-    }
     void populate(K const &key, V const &value, size_t const hash_val){
         setKey(key);
         setValue(value);
         setHash(hash_val);
         setState(OCCUPIED);
     }
-
+    
 private:
     // key-value pair
     K key;

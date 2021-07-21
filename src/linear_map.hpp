@@ -12,7 +12,8 @@ template <typename K, typename V, typename H = GenericHash<K> >
 class LinearMap
 {
     public:
-        LinearMap(size_t init_capacity, double max_load=0.5) : hash_func(){   
+        LinearMap(size_t init_capacity=1024, double max_load=0.5) : hash_func(){
+            init_capacity = nextPowerOf2(init_capacity);
             entries = new Entry<K, V>[init_capacity];
             num_entries = 0;
             capacity = init_capacity;
@@ -26,17 +27,11 @@ class LinearMap
             entries = new Entry<K, V>[lmap.getCapacity()];
             num_entries = 0;
             capacity = lmap.getCapacity();
+            load_factor = lmap.getLoadFactor();
             
             // insert all entries into new_entries
             for(auto i : lmap){
-                K key = i.getKey();
-                V value = i.getValue();
-                size_t hash_val = i.getHash();
-                size_t idx = hash_val & (capacity-1);
-
-                entries[idx].populate(key, value, hash_val);
-
-                num_entries++;
+                insert(i.getKey(), i.getValue());
             }
         }
         struct Iterator{
@@ -85,42 +80,45 @@ class LinearMap
                 size_t curr_idx;
                 size_t max_idx;
         };
-
+        void printEntries(){
+            for(int i = 0; i < capacity; i++){
+                cout << i << " ";
+                if(entries[i].isEmpty()){
+                    cout << "NULL NULL" << endl;
+                }
+                else{
+                    cout << entries[i].getKey() << " " << entries[i].getValue() << endl;
+                }
+            }
+        }
         void insert(K const &key, V const &value){
+            // Guarantee that we have empty slots
             if(num_entries > load_factor*capacity){
                 reallocate();
             }
 
             // Hash the key and get the index
             size_t hash_val = hash_func(key, capacity);
-            size_t idx = hash_val & (capacity-1);
-            
-            size_t avail_slot = -1;
-            while(!entries[idx].isClean()){
-                // Check if the key exists in the 
-                // dictionary, if it does then replace it
-                if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
-                    entries[idx].populate(key, value, hash_val);
+            size_t idx;
+            for(size_t i = 0; i < capacity; i++){
+                idx = convertHash(hash_val + i);
+                // Check if we found a EMPTY slot
+                if(entries[idx].isEmpty()){
+                    setEntry(idx, key, value, hash_val);
+                    num_entries++;
                     return;
                 }
-                else if(entries[idx].isDirty() && avail_slot == -1){
-                    avail_slot = idx;
+                // Check if the key exists in the 
+                // dictionary, if it does then replace it
+                else if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
+                    setEntry(idx, key, value, hash_val);
+                    return;
                 }
-                idx = (idx + 1) & (capacity-1);
             }
-            
-            if(avail_slot == -1){
-                avail_slot = idx;
-            }
-            entries[avail_slot].populate(key, value, hash_val);
-            num_entries++;
         }
 
         bool emplace(K const &key, V &value){
-            size_t hash_val = hash_func(key, capacity);
-            size_t idx = hash_val & (capacity-1);
-            
-            idx = find_index(key, idx);
+            size_t idx = find_index(key);
 
             if(idx == -1){
                 return false;
@@ -129,18 +127,30 @@ class LinearMap
             value = entries[idx].getValue();
             return true;
         }
-
+        
         bool remove(K const &key){
-            size_t hash_val = hash_func(key, capacity);
-            size_t idx = hash_val & (capacity-1);
-            
-            idx = find_index(key, idx);
+                
+            int idx = find_index(key);
 
             if(idx == -1){
                 return false;
             }
+            num_entries--;
+            size_t empty_idx = idx;
+            size_t curr_idx = nextIdx(empty_idx);
+            while(!entries[curr_idx].isEmpty()){
+                size_t curr_dist = calcDist(empty_idx, curr_idx);
+                size_t curr_PSL = calcPSL(entries[curr_idx].getHash(), curr_idx);
 
-            entries[idx].clear();
+                if(curr_dist <= curr_PSL){
+                    moveEntry(curr_idx, empty_idx);
+                    empty_idx = curr_idx;
+                }
+
+                curr_idx = nextIdx(curr_idx);
+            }
+
+            entries[empty_idx].setState(EMPTY);
             return true;
         }
 
@@ -150,6 +160,10 @@ class LinearMap
 
         size_t getCapacity(){
             return capacity;
+        }
+        
+        size_t getLoadFactor(){
+            return load_factor;
         }
 
         Iterator begin() { 
@@ -170,48 +184,115 @@ class LinearMap
         H hash_func;
         double load_factor;
         
-        size_t find_index(K const &key, size_t idx){
-            while(!entries[idx].isClean()){
-                if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
+        size_t convertHash(size_t hash_val){
+            return hash_val & (capacity - 1);
+        }
+
+        size_t nextIdx(size_t idx){
+            return (idx+1) & (capacity - 1);
+        }
+
+        unsigned int nextPowerOf2(unsigned int n){
+            n--;
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            n++;
+            return n;
+        }
+        
+        void setEntry(size_t const idx, K const &key, V const &value, size_t const hash_val){
+            size_t PSL = calcPSL(hash_val, idx);
+
+            entries[idx].setKey(key);
+            entries[idx].setValue(value);
+            entries[idx].setHash(hash_val);
+            entries[idx].setPSL(PSL);
+
+            entries[idx].setState(OCCUPIED);
+       
+        }
+
+        size_t calcPSL(size_t hash_val, size_t actual_idx){
+            size_t expected_idx = convertHash(hash_val);
+            return calcDist(expected_idx, actual_idx);
+        }
+
+        size_t calcDist(size_t start_idx, size_t end_idx){
+            size_t dist = end_idx - start_idx;
+            if(dist < 0){
+                dist += capacity;
+            }
+            return dist;
+        }
+
+        void moveEntry(size_t src_idx, size_t dst_idx){
+            K key = entries[src_idx].getKey();
+            V val = entries[src_idx].getValue();
+            size_t hash = entries[src_idx].getHash();
+            
+            entries[dst_idx].setKey(key);
+            entries[dst_idx].setValue(val);
+            entries[dst_idx].setHash(hash);
+            
+            size_t new_PSL = calcPSL(entries[src_idx].getHash(), dst_idx);
+            entries[dst_idx].setPSL(new_PSL);
+
+            entries[src_idx].setState(EMPTY);
+            entries[dst_idx].setState(OCCUPIED);
+        }
+
+        size_t find_index(K const &key){
+            size_t hash_val = hash_func(key, capacity);
+            size_t start_idx = convertHash(hash_val);
+
+            for(size_t i = 0; i < capacity; i++){
+                size_t idx = convertHash(start_idx + i);
+                // Check if the key exists in the 
+                // dictionary, if it does then replace it
+                if(entries[idx].isEmpty()){
+                    return -1;
+                }
+                else if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
                     return idx;
                 }
-                idx = (idx + 1) & (capacity-1);
             }
             return -1;
         }
 
         void reallocate(){
             // Calculate new capacity
-            size_t new_capacity = 2*capacity;
-
+            size_t old_capacity = capacity;
+            capacity = 2*capacity;
+            
             // Store old key value pairs
             Entry<K, V>* old_entries = entries;
             
             // Allocate a new array of Entry pointer objects
-            entries = new Entry<K, V>[new_capacity];
+            entries = new Entry<K, V>[capacity];
 
             // insert all entries into new_entries
-            for(int i = 0; i < capacity; i++){
-                if(!old_entries[i].isOccupied()){
+            for(int i = 0; i < old_capacity; i++){
+                if(old_entries[i].isEmpty()){
                     continue;
                 }
                 // Get the shit
-                K key = old_entries[i].getKey();
-                V value = old_entries[i].getValue();
+                K& key = old_entries[i].getKey();
+                V& value = old_entries[i].getValue();
                 size_t hash_val = old_entries[i].getHash();
-                size_t idx = hash_val & (new_capacity-1);
-                
+                size_t idx = convertHash(hash_val);
+
                 // insert the key value pair into the new entry table
-                while(!entries[idx].isClean()){
-                    idx = (idx + 1) & (new_capacity-1);
+                while(!entries[idx].isEmpty()){
+                    idx = nextIdx(idx);
                 }
-                entries[idx].populate(key, value, hash_val);
+                setEntry(idx, key, value, hash_val);
             }
 
             // Remove old entries
             delete old_entries;
-
-            capacity = new_capacity;
         }
 };
 

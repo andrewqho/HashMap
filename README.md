@@ -1,9 +1,22 @@
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+inlineMath: [['$','$'], ['\\(','\\)']],
+processEscapes: true},
+jax: ["input/TeX","input/MathML","input/AsciiMath","output/CommonHTML"],
+extensions: ["tex2jax.js","mml2jax.js","asciimath2jax.js","MathMenu.js","MathZoom.js","AssistiveMML.js", "[Contrib]/a11y/accessibility-menu.js"],
+TeX: {
+extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"],
+equationNumbers: {
+autoNumber: "AMS"
+}
+}
+});
+</script>
+
 # Open Addressing HashMaps
 
-I recently stumbled across the wild world of hashmaps when I was writing a chapter about how dictionaries are implemented in Python and 
-fell down a pretty deep rabbit hole. I found a talk by a very intelligent man named Malte Skarupke about optimizations one could make in 
-creating a hashmap that could beat even the speed of C++'s standard library hashmap. Intruiged, I set out to determine whether I myself 
-could write a hashmap faster that would rival or potentially even surpass the performance of std::unordered_map.
+I recently stumbled across the wild world of hashmaps when I was writing a chapter about how dictionaries are implemented in Python and fell down a pretty deep rabbit hole. Intruiged, I set out to determine whether I myself could write a hashmap faster that would rival or potentially even surpass the performance of std::unordered_map.
 
 # std::unordered_map
 
@@ -12,11 +25,43 @@ std::unordered_map uses a technique called chaining to build its hashmap. You ca
 
 ## Pros and Cons
 
-Chaining is a very simple method to ensure that keys are safely kept in the bucket they're assigned to. In addition, since we can grow the linked list to infinite length, technically we can never run out of space in our hashmap. The static array does not need to be grown. However, this does come with some significant drawbacks. In the case that elements are mapped to a small range of indices, there's a lot of wasted space in the hashmap. Cache performance is also not great with linked lists, since linked list nodes are not (necessarily) adjacent in memory. As you iterate along the chain, you run into a bunch of cache misses bouncing across memory addresses.
+Chaining is a very simple method to ensure that keys are safely kept in the bucket they're assigned to. In addition, since we can grow the linked list to infinite length, technically we can never run out of space in our hashmap. The static array does not need to be grown. However, this does come with some significant drawbacks. In the case that elements are mapped to a small range of indices, there's a lot of wasted space in the hashmap. Cache performance is also not great with linked lists, since linked list nodes are not (necessarily) adjacent in memory. As you iterate along the chain, you run into a bunch of cache misses bouncing across memory addresses. The Big-O of insertions, removals, and look-ups for chaining are all $O(N)$, where $N$ is the number of entries in the hashmap.
 
 Our goal is to minimize wasted space and improve cache performance of searches with the following hashmap implementations.
 
 # LinearMap
 
 ## The Implementation
-The first hashmap I implemented uses open addressing with linear probing. The idea of open addressing is that key-value pairs can live in slots that it does not necessarily map to. Suppose you want to insert a key-value pair, and the key hashes to index 21. But in index 21, there already exists a key-value pair. Instead of chaining, what we do is we "probe" for an empty slot and stick it in there instead. When we want to look-up a value, we go to the initial bucket that the key hashes to and check if that slot contains the key. If the slot doesn't, then we continue to probe the same way we did looking for an empty slot. When we want to remove a key-value pair, we mark it with a tombstone, indicating that there used to be a key-value pair, but we removed it. When we go to look up a key, we continue to probe until we see a clean slot, meaning a slot that didn't have any key-value pair in it yet. This is because when we probed before, we could have probed past a a key-value pair that was there before, but was removed. If we didn't probe past the tomb-s
+The first hashmap I implemented uses open addressing with linear probing. The idea of open addressing is that key-value pairs can live in slots that it does not necessarily map to. Suppose you want to insert a key-value pair, and the key hashes to index 21. But in index 21, there already exists a key-value pair. Instead of chaining, what we do is we "probe" for an empty slot and stick it in there instead. When we want to look-up a value, we go to the initial bucket that the key hashes to and check if that slot contains the key. If the slot doesn't, then we continue to probe the same way we did looking for an empty slot. When we want to remove a key-value pair, we mark it with a tombstone, indicating that there used to be a key-value pair, but we removed it. When we go to look up a key, we continue to probe until we see a clean slot, meaning a slot that didn't have any key-value pair in it yet. This is because when we probed before, we could have probed past a a key-value pair that was there before, but was removed. If we don't probe past the tombtone, then there's a chance that the key-value exists later but is now cut off.
+
+## Pros and Cons
+
+Since all of the entries are placed next to one another in a flat array, this means that cache performance should be better. However, with tombstones, it's possible that interleaving insertions and removals results in longer probe sequences than following a linked list. In fact, the worst-case scenario for look-ups, insertions, and removals are actually $O(M)$, where $M$ is the capacity of the hashmap. Since we necessarily have that $M > N$, the Big-O of linear hashmaps are actually worse than that of the chained variety.
+
+# Robinhood Map
+
+
+
+# Benchmark Tests
+
+## Simple Insertion
+
+This test generates a vector of keys from 0 to $K$, shuffles them into a random order, then records the time it takes to insert all of the keys into the hashmap.
+
+## Simple Look-Up
+
+This test generates a vector of keys from 0 to $K$, shuffles them into a random order, and then inserts the keys into the hashmap. Then it shuffles the keys into a random order again and records the time it takes to look up all of the keys in the vector.
+
+## Simple Removal
+
+This test generates a vector of keys from 0 to $K$, shuffles them into a random order, then inserts the keys into the hashmap. Then it shuffles the keys into a random order again and records the time it takes to remove all of the keys in the vector.
+
+## Insertions with Removals
+
+This test generates a vector of keys from 0 to $K$, shuffles them into a random order, then inserts the keys into the hashmap. Then it shuffles half of the randomized keys into a random order again and removes those keys from the hashmap. Finally, all the keys are shuffled into a random order and the test records the time it takes to insert all of the keys in the vector.
+
+## Look-Ups with Removals
+
+This test generates a vector of keys from 0 to $K$, shuffles them into a random order, then inserts the keys into the hashmap. Then it shuffles half of the randomized keys into a random order again and removes those keys from the hashmap. Finally, all the keys are shuffled into a random order and the test records the time it takes to look-up all of the keys in the vector.
+
+# Results
