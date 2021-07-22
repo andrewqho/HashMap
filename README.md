@@ -6,3 +6,4 @@ I recently stumbled across the wild world of hashmaps when I was writing a chapt
 
 A more in-depth analysis of my hashmaps and descriptions of my tests can be found in the file [benchmark.ipnyb](https://github.com/andrewqho/HashMap/blob/main/bin/benchmarks.ipynb). Here are the final graphs of my performance:
 
+[Simple Insertion Benchmark](https://github.com/andrewqho/HashMap/blob/main/static/insert.jpg)
