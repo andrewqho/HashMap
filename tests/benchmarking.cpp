@@ -170,7 +170,7 @@ void benchmark_insert_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         std::random_shuffle (keys.begin(), keys.end());
 
@@ -199,7 +199,7 @@ void benchmark_emplace_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         std::random_shuffle (keys.begin(), keys.end());
         lmap2_insert_speed(lmap2, keys);
@@ -234,7 +234,7 @@ void benchmark_unsuccessful_emplace_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         std::random_shuffle (keys.begin(), keys.end());
         lmap2_insert_speed(lmap2, keys);
@@ -246,7 +246,7 @@ void benchmark_unsuccessful_emplace_speed(){
         
         std::vector<uint32_t> new_keys;
         for(uint32_t j = 0; j < i; j++){
-            new_keys.push_back(j*j+1);
+            new_keys.push_back(rand());
         }
         benchmark_emplace << i << ",";
         benchmark_emplace << lmap2_emplace_speed(lmap2, new_keys) << ",";
@@ -273,7 +273,7 @@ void benchmark_remove_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         lmap2_insert_speed(lmap2, keys);
         lmap_insert_speed(lmap, keys);
@@ -307,7 +307,7 @@ void benchmark_insert_with_removal_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         lmap2_insert_speed(lmap2, keys);
         lmap_insert_speed(lmap, keys);
@@ -350,7 +350,7 @@ void benchmark_emplace_with_removal_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         std::random_shuffle (keys.begin(), keys.end());
         lmap2_insert_speed(lmap2, keys);
@@ -394,7 +394,7 @@ void benchmark_unsuccessful_emplace_with_removal_speed(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         std::random_shuffle (keys.begin(), keys.end());
         lmap2_insert_speed(lmap2, keys);
@@ -414,7 +414,7 @@ void benchmark_unsuccessful_emplace_with_removal_speed(){
         
         std::vector<uint32_t> new_keys;
         for(uint32_t j = 0; j < i; j++){
-            new_keys.push_back(j*j+1);
+            new_keys.push_back(rand());
         }
 
         std::random_shuffle (new_keys.begin(), new_keys.end());
@@ -443,7 +443,7 @@ void benchmark_avg_PSL(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < i; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         
         std::random_shuffle (keys.begin(), keys.end());
@@ -474,7 +474,7 @@ void benchmark_max_PSL(){
         // Generate keys
         std::vector<uint32_t> keys;
         for(uint32_t j = 0; j < MAX_ELEM; j++){
-            keys.push_back(j*j);
+            keys.push_back(rand());
         }
         
         std::random_shuffle (keys.begin(), keys.end());
@@ -486,11 +486,49 @@ void benchmark_max_PSL(){
         benchmark_PSL << lmap2.calcMaxPSL() << ",";
         benchmark_PSL << lmap.calcMaxPSL() << ",";
         benchmark_PSL << rmap.calcMaxPSL() << endl;
+
+        
     }
     cout << "Finished Max PSL Benchmark" << endl;
 }
 
+void benchmark_memory_usage(){
+    std::ofstream benchmark_memory;
+    benchmark_memory.open("bin/benchmarks/memory.csv");
+
+    benchmark_memory << "Num Entries,LinearMap with Tombstone,LinearMap with Backwards Shifting,Robinhood Map\n";
+
+    // Declare hashmaps
+    for(uint32_t i = STEP_SIZE; i <= MAX_ELEM; i+=STEP_SIZE){
+        LinearMap2<uint32_t, uint32_t> lmap2(SMALL_SIZE);
+        LinearMap<uint32_t, uint32_t> lmap(SMALL_SIZE);
+        RobinhoodMap<uint32_t, uint32_t> rmap(SMALL_SIZE);
+        std::unordered_map<uint32_t, uint32_t> umap(SMALL_SIZE);
+
+        // Generate keys
+        std::vector<uint32_t> keys;
+        for(uint32_t j = 0; j < MAX_ELEM; j++){
+            keys.push_back(rand());
+        }
+        
+        std::random_shuffle (keys.begin(), keys.end());
+        lmap2_insert_speed(lmap2, keys);
+        lmap_insert_speed(lmap, keys);
+        rmap_insert_speed(rmap, keys);
+        umap_insert_speed(umap, keys);
+
+        benchmark_memory << i << ",";
+        benchmark_memory << sizeof(lmap2) << ",";
+        benchmark_memory << sizeof(lmap) << ",";
+        benchmark_memory << sizeof(rmap) << ",";
+        benchmark_memory << sizeof(umap) << endl;
+    }
+    cout << "Finished Memory Usage Benchmark" << endl;
+}
+
 int main () {
+    srand(time(0));
+
     cout << "===============================" << endl;
     cout << "Starting Performance Benchmarks" << endl;
     cout << "===============================" << endl;
@@ -502,6 +540,7 @@ int main () {
     benchmark_insert_with_removal_speed();
     benchmark_emplace_with_removal_speed();
     benchmark_unsuccessful_emplace_with_removal_speed();
-    benchmark_max_PSL();
+    // benchmark_memory_usage();
+    // benchmark_max_PSL();
     // benchmark_avg_PSL();
 }

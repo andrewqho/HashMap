@@ -198,8 +198,10 @@ class RobinhoodMap
         double calcAvgPSL()
         {
             double avg_PSL = 0.0;
-            for(int i = 0; i < capacity; i++){
-                if(entries[i].isOccupied()){
+            for(int i = 0; i < capacity; i++)
+            {
+                if(entries[i].isOccupied())
+                {
                     avg_PSL += entries[i].getPSL();
                 }
             }
@@ -211,15 +213,17 @@ class RobinhoodMap
         {
             size_t max_PSL = 0;
 
-            for(int i = 0; i < capacity; i++){
-                if(entries[i].isOccupied()){
+            for(int i = 0; i < capacity; i++)
+            {
+                if(entries[i].isOccupied())
+                {
                     max_PSL = max(max_PSL, entries[i].getPSL());
                 }
             }
 
             return max_PSL; 
         }
-
+        
         Iterator begin() 
         { 
             size_t curr_idx = 0;
