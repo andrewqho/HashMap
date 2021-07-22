@@ -22,7 +22,7 @@ The Makefile in the main directory holds all of the commands to compile, run, an
 
 1. **make all**: This will compile all of the correctness tests and the benchmarking script. `.o` files will be compiled to the `out/` folder and executables will be compiled to the `bin/` folder. 
 2. **make test**: This will run all four test files. The last script to run will be the benchmarking code. You can also run the executables yourself, but I like running correctness code whenever I make changes so it's a handy command
-3. **make clean_all**: This will clear out the object files, the executable files, and the `.csv` benchmarking outputs.
+3. **make clean**: This will clear out the object files, the executable files, and the `.csv` benchmarking outputs.
 
 # Benchmarking
 
