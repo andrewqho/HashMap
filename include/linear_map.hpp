@@ -80,6 +80,7 @@ class LinearMap
                 size_t curr_idx;
                 size_t max_idx;
         };
+        
         void printEntries(){
             for(int i = 0; i < capacity; i++){
                 cout << i << " ";
@@ -87,9 +88,32 @@ class LinearMap
                     cout << "NULL NULL" << endl;
                 }
                 else{
-                    cout << entries[i].getKey() << " " << entries[i].getValue() << endl;
+                    cout << entries[i].getKey() << " " << entries[i].getValue() << " " << entries[i].getPSL() << endl;
                 }
             }
+        }
+        double calcAvgPSL(){
+            double avg_PSL = 0.0;
+
+            for(int i = 0; i < capacity; i++){
+                if(entries[i].isOccupied()){
+                    avg_PSL += entries[i].getPSL();
+                }
+            }
+
+            return avg_PSL/num_entries; 
+        }
+        size_t calcMaxPSL(){
+            size_t max_PSL = 0;
+
+            for(int i = 0; i < capacity; i++){
+                if(entries[i].isOccupied()){
+                    max_PSL = max(max_PSL, entries[i].getPSL());
+                    
+                }
+            }
+
+            return max_PSL; 
         }
         void insert(K const &key, V const &value){
             // Guarantee that we have empty slots
@@ -129,7 +153,7 @@ class LinearMap
         }
         
         bool remove(K const &key){
-                
+            
             int idx = find_index(key);
 
             if(idx == -1){

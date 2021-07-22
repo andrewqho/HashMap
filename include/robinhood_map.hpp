@@ -110,6 +110,7 @@ class RobinhoodMap
                     std::swap(val_to_write, entries[idx].getValue());
                     std::swap(hash_val, entries[idx].getHash());
                     std::swap(PSL, entries[idx].getPSL());
+                    // cout << "swapped!" << endl;
                 }
                 idx = nextIdx(idx);
                 PSL++;
@@ -164,21 +165,33 @@ class RobinhoodMap
                     cout << "NULL NULL" << endl;
                 }
                 else{
-                    cout << entries[i].getKey() << " " << entries[i].getValue() << endl;
+                    cout << entries[i].getKey() << " " << entries[i].getValue() << " " << entries[i].getPSL() << endl;
                 }
             }
         }
 
         double calcAvgPSL(){
             double avg_PSL = 0.0;
-
             for(int i = 0; i < capacity; i++){
-                if(entries[i].isOccupied){
+                if(entries[i].isOccupied()){
                     avg_PSL += entries[i].getPSL();
                 }
             }
 
-            return avg_PSL/capacity; 
+            return avg_PSL/num_entries; 
+        }
+        
+        size_t calcMaxPSL(){
+            size_t max_PSL = 0;
+
+            for(int i = 0; i < capacity; i++){
+                if(entries[i].isOccupied()){
+                    max_PSL = max(max_PSL, entries[i].getPSL());
+                    
+                }
+            }
+
+            return max_PSL; 
         }
 
         Iterator begin() { 
@@ -225,7 +238,6 @@ class RobinhoodMap
             entries[idx].setValue(value);
             entries[idx].setHash(hash_val);
             entries[idx].setPSL(PSL);
-
             entries[idx].setState(OCCUPIED);
        
         }

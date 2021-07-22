@@ -7,23 +7,30 @@ CC = g++
 CFLAGS = -Wall -g -std=c++11 
 INC = -I/Users/aqho/Desktop/PersonalCodingProjects/HashTable/include
 
-all: bin/test_speed bin/test_correctness_linear bin/test_correctness_robinhood
+all: bin/benchmarking bin/test_correctness_linear bin/test_correctness_linear2 bin/test_correctness_robinhood
 
 test:
 	./bin/test_correctness_linear
+	./bin/test_correctness_linear2
 	./bin/test_correctness_robinhood
-	./bin/test_speed
+	./bin/benchmarking
 
-bin/test_speed: out/test_speed.o
+bin/benchmarking: out/benchmarking.o
 	$(CC) $(CFLAGS) $^ -o $@ 
 	
-out/test_speed.o: tests/test_speed.cpp 
+out/benchmarking.o: tests/benchmarking.cpp 
 	$(CC) $(CFLAGS) $(INC) $^ -c -o $@ 
 
 bin/test_correctness_linear: out/test_correctness_linear.o
 	$(CC) $(CFLAGS) $^ -o $@
 	
 out/test_correctness_linear.o: tests/test_correctness_linear.cpp 
+	$(CC) $(CFLAGS) $(INC) $^ -c -o $@ 
+
+bin/test_correctness_linear2: out/test_correctness_linear2.o
+	$(CC) $(CFLAGS) $^ -o $@
+	
+out/test_correctness_linear2.o: tests/test_correctness_linear2.cpp 
 	$(CC) $(CFLAGS) $(INC) $^ -c -o $@ 
 
 bin/test_correctness_robinhood: out/test_correctness_robinhood.o

@@ -12,7 +12,8 @@ template <typename K, typename V, typename H = GenericHash<K> >
 class LinearMap2
 {
     public:
-        LinearMap2(size_t init_capacity, double max_load=0.5) : hash_func(){   
+        LinearMap2(size_t init_capacity=1024, double max_load=0.5) : hash_func(){   
+            init_capacity = nextPowerOf2(init_capacity);
             entries = new Entry2<K, V>[init_capacity];
             num_entries = 0;
             capacity = init_capacity;
@@ -34,7 +35,7 @@ class LinearMap2
                 size_t hash_val = i.getHash();
                 size_t idx = hash_val & (capacity-1);
 
-                entries[idx].populate(key, value, hash_val);
+                setEntry(idx, key, value, hash_val);
 
                 num_entries++;
             }
@@ -85,6 +86,42 @@ class LinearMap2
                 size_t curr_idx;
                 size_t max_idx;
         };
+        void printEntries(){
+            for(int i = 0; i < capacity; i++){
+                cout << i << " ";
+                if(entries[i].isEmpty()){
+                    cout << "NULL NULL" << endl;
+                }
+                else{
+                    cout << entries[i].getKey() << " " << entries[i].getValue() << " " << entries[i].getPSL() << endl;
+                }
+            }
+        }
+        double calcAvgPSL(){
+            double avg_PSL = 0.0;
+
+            for(int i = 0; i < capacity; i++){
+                if(entries[i].isInUse()){
+                    avg_PSL += entries[i].getPSL();
+                    
+                }
+            }
+
+            return avg_PSL/num_entries; 
+        }
+
+        size_t calcMaxPSL(){
+            size_t max_PSL = 0;
+
+            for(int i = 0; i < capacity; i++){
+                if(entries[i].isInUse()){
+                    max_PSL = max(max_PSL, entries[i].getPSL());
+                    
+                }
+            }
+
+            return max_PSL; 
+        }
 
         void insert(K const &key, V const &value){
             if(num_entries > load_factor*capacity){
@@ -100,7 +137,7 @@ class LinearMap2
                 // Check if the key exists in the 
                 // dictionary, if it does then replace it
                 if(entries[idx].isInUse() && entries[idx].key_cmp(key)){
-                    entries[idx].populate(key, value, hash_val);
+                    setEntry(idx, key, value, hash_val);
                     return;
                 }
                 else if(entries[idx].isDirty() && avail_slot == -1){
@@ -112,7 +149,8 @@ class LinearMap2
             if(avail_slot == -1){
                 avail_slot = idx;
             }
-            entries[avail_slot].populate(key, value, hash_val);
+            setEntry(idx, key, value, hash_val);
+            
             num_entries++;
         }
 
@@ -170,6 +208,25 @@ class LinearMap2
         H hash_func;
         double load_factor;
         
+        unsigned int nextPowerOf2(unsigned int n){
+            n--;
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            n++;
+            return n;
+        }
+
+        size_t convertHash(size_t hash_val){
+            return hash_val & (capacity - 1);
+        }
+        
+        size_t nextIdx(size_t idx){
+            return (idx+1) & (capacity - 1);
+        }
+
         size_t find_index(K const &key, size_t idx){
             while(!entries[idx].isClean()){
                 if(entries[idx].isInUse() && entries[idx].key_cmp(key)){
@@ -178,6 +235,30 @@ class LinearMap2
                 idx = (idx + 1) & (capacity-1);
             }
             return -1;
+        }
+        void setEntry(size_t const idx, K const &key, V const &value, size_t const hash_val){
+            size_t PSL = calcPSL(hash_val, idx);
+
+            entries[idx].setKey(key);
+            entries[idx].setValue(value);
+            entries[idx].setHash(hash_val);
+            entries[idx].setPSL(PSL);
+
+            entries[idx].setState(IN_USE);
+       
+        }
+
+        size_t calcPSL(size_t hash_val, size_t actual_idx){
+            size_t expected_idx = convertHash(hash_val);
+            return calcDist(expected_idx, actual_idx);
+        }
+
+        size_t calcDist(size_t start_idx, size_t end_idx){
+            size_t dist = end_idx - start_idx;
+            if(dist < 0){
+                dist += capacity;
+            }
+            return dist;
         }
 
         void reallocate(){
@@ -205,7 +286,7 @@ class LinearMap2
                 while(!entries[idx].isClean()){
                     idx = (idx + 1) & (new_capacity-1);
                 }
-                entries[idx].populate(key, value, hash_val);
+                setEntry(idx, key, value, hash_val);
             }
 
             // Remove old entries

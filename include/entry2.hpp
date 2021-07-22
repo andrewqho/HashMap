@@ -40,7 +40,7 @@ public:
     bool isClean(){
         return state == CLEAN;
     }
-    bool isOccupied(){
+    bool isInUse(){
         return state == IN_USE;
     }
     State2 getState() const{
@@ -56,7 +56,7 @@ public:
     void setHash(const size_t new_hash_val) {
         hash_val = new_hash_val;
     }
-    void setState(State new_state){
+    void setState(State2 new_state){
         state = new_state;
     }
     void setPSL(size_t new_PSL){
@@ -70,7 +70,7 @@ public:
         setKey(key);
         setValue(value);
         setHash(hash_val);
-        setState(OCCUPIED);
+        setState(IN_USE);
     }
 
 private:
