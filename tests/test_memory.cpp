@@ -18,7 +18,7 @@ const uint32_t SMALL_SIZE = pow(2, 4);
 const uint32_t MEDIUM_SIZE = pow(2, 15);
 const uint32_t LARGE_SIZE = pow(2, 20);
 
-const uint32_t MAX_ELEM = 100000;
+const uint32_t MAX_ELEM = 10000;
 const uint32_t STEP_SIZE = MAX_ELEM/20;
 
 double umap_insert_speed(std::unordered_map<uint32_t, uint32_t> &umap, std::vector<uint32_t> keys){
