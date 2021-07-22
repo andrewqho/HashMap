@@ -39,6 +39,10 @@ bin/test_correctness_robinhood: out/test_correctness_robinhood.o
 out/test_correctness_robinhood.o: tests/test_correctness_robinhood.cpp 
 	$(CC) $(CFLAGS) $(INC) $^ -c -o $@ 
 
-clean:
+clean_all: clean_benchmarks clean_objs
+
+clean_benchmarks:
 	find bin/ -type f -not -name 'benchmarks.ipynb' -delete
+
+clean_objs: 
 	find out/ -type f -delete 

@@ -110,7 +110,6 @@ class RobinhoodMap
                     std::swap(val_to_write, entries[idx].getValue());
                     std::swap(hash_val, entries[idx].getHash());
                     std::swap(PSL, entries[idx].getPSL());
-                    // cout << "swapped!" << endl;
                 }
                 idx = nextIdx(idx);
                 PSL++;
@@ -187,7 +186,6 @@ class RobinhoodMap
             for(int i = 0; i < capacity; i++){
                 if(entries[i].isOccupied()){
                     max_PSL = max(max_PSL, entries[i].getPSL());
-                    
                 }
             }
 
