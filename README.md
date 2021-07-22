@@ -12,7 +12,7 @@ A more in-depth analysis of my hashmaps and descriptions of my tests can be foun
 
 <img src="static/unsuccessful_emplace.jpg" width="600" height="400"/>
 
-<img src="static/removal.jpg" width="600" height="400"/>
+<img src="static/remove.jpg" width="600" height="400"/>
 
 <img src="static/insert_with_removal.jpg" width="600" height="400"/>
 
