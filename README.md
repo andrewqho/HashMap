@@ -6,16 +6,16 @@ I recently stumbled across the wild world of hashmaps when I was writing a chapt
 
 A more in-depth analysis of my hashmaps and descriptions of my tests can be found in the file [benchmark.ipnyb](https://github.com/andrewqho/HashMap/blob/main/bin/benchmarks.ipynb). Here are the final graphs of my performance:
 
-<img src="static/insert.jpg"/>
+<img src="static/insert.jpg" width="600" height="400"/>
 
-<img src="static/emplace.jpg"/>
+<img src="static/emplace.jpg" width="600" height="400"/>
 
-<img src="static/unsuccessful_emplace.jpg"/>
+<img src="static/unsuccessful_emplace.jpg" width="600" height="400"/>
 
-<img src="static/removal.jpg"/>
+<img src="static/removal.jpg" width="600" height="400"/>
 
-<img src="static/insert_with_removal.jpg"/>
+<img src="static/insert_with_removal.jpg" width="600" height="400"/>
 
-<img src="static/emplace_with_removal.jpg"/>
+<img src="static/emplace_with_removal.jpg" width="600" height="400"/>
 
-<img src="static/unsuccessful_emplace_with_removal.jpg"/>
+<img src="static/unsuccessful_emplace_with_removal.jpg" width="600" height="400"/>
