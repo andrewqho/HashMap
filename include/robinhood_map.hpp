@@ -9,10 +9,11 @@
 using namespace std;
 
 template <typename K, typename V, typename H = GenericHash<K> >
-class RobinhoodMap
+class RobinhoodMap 
 {
     public:
-        RobinhoodMap(size_t init_capacity=1024, double max_load=0.5) : hash_func(){   
+        RobinhoodMap(size_t init_capacity=1024, double max_load=0.5) : hash_func() 
+        {   
             init_capacity = nextPowerOf2(init_capacity);
             entries = new Entry<K, V>[init_capacity];
             num_entries = 0;
@@ -20,16 +21,19 @@ class RobinhoodMap
             load_factor = max_load;
         }
         // Destructor
-        ~RobinhoodMap(){
+        ~RobinhoodMap()
+        {
             delete entries;
         }
-        RobinhoodMap(const RobinhoodMap& rmap){
+        RobinhoodMap(const RobinhoodMap& rmap)
+        {
             entries = new Entry<K, V>[rmap.getCapacity()];
             num_entries = rmap.getSize();
             capacity = rmap.getCapacity();
             load_factor = rmap.getLoadFactor();
             // insert all entries into new_entries
-            for(auto i : rmap){
+            for(auto i : rmap)
+            {
                 K key = i.getKey();
                 V value = i.getValue();
                 size_t hash_val = i.getHash();
@@ -38,7 +42,8 @@ class RobinhoodMap
                 setEntry(idx, key, value, hash_val);
             }
         }
-        struct Iterator{
+        struct Iterator
+        {
             using iterator_category = std::forward_iterator_tag;
             using difference_type   = int;
             using value_type        = Entry<K, V>;
@@ -47,13 +52,16 @@ class RobinhoodMap
 
             public:
                 Iterator(pointer ptr, size_t idx, size_t capacity): entry_ptr(ptr), curr_idx(idx), max_idx(capacity) {}
-                reference operator*() const {
+                reference operator*() const 
+                {
                     return *entry_ptr; 
                 }
-                pointer operator->() { 
+                pointer operator->() 
+                { 
                     return entry_ptr; 
                 }
-                Iterator operator++() { 
+                Iterator operator++() 
+                { 
                     entry_ptr++;
                     curr_idx++;
                     while(curr_idx < max_idx && !entry_ptr->isOccupied()){
@@ -62,21 +70,25 @@ class RobinhoodMap
                     }
                     return *this; 
                 }
-                Iterator operator++(int) { 
+                Iterator operator++(int) 
+                { 
                     Iterator tmp = *this;
                     entry_ptr++;
                     curr_idx++;
-                    while(curr_idx < max_idx && !entry_ptr->isOccupied()){
+                    while(curr_idx < max_idx && !entry_ptr->isOccupied())
+                    {
                         entry_ptr++;
                         curr_idx++;
                     }
                     return tmp;
                     
                 }
-                friend bool operator== (const Iterator& a, const Iterator& b) { 
+                friend bool operator== (const Iterator& a, const Iterator& b) 
+                { 
                     return a.entry_ptr == b.entry_ptr; 
                 };
-                friend bool operator!= (const Iterator& a, const Iterator& b) { 
+                friend bool operator!= (const Iterator& a, const Iterator& b) 
+                { 
                     return a.entry_ptr != b.entry_ptr; 
                 };  
             private:
@@ -85,8 +97,10 @@ class RobinhoodMap
                 size_t max_idx;
         };
 
-        void insert(K const &key, V const &value){
-            if(num_entries > load_factor*capacity){
+        void insert(K const &key, V const &value)
+        {
+            if(num_entries > load_factor*capacity)
+            {
                 reallocate();
             }
 
@@ -97,20 +111,24 @@ class RobinhoodMap
             size_t idx = convertHash(hash_val);
             size_t PSL = 0;
 
-            while(!entries[idx].isEmpty()){
+            while(!entries[idx].isEmpty())
+            {
                 // Check if the key exists in the 
                 // dictionary, if it does then replace it
-                if(entries[idx].isOccupied() && entries[idx].key_cmp(key_to_write)){
+                if(entries[idx].isOccupied() && entries[idx].key_cmp(key_to_write))
+                {
                     setEntry(idx, key_to_write, val_to_write, hash_val);
                     return;
                 }
                 // Check if we should swap
-                if(entries[idx].getPSL() < PSL){
+                else if(entries[idx].getPSL() < PSL)
+                {
                     std::swap(key_to_write, entries[idx].getKey());
                     std::swap(val_to_write, entries[idx].getValue());
                     std::swap(hash_val, entries[idx].getHash());
                     std::swap(PSL, entries[idx].getPSL());
                 }
+                
                 idx = nextIdx(idx);
                 PSL++;
             }
@@ -119,10 +137,12 @@ class RobinhoodMap
             num_entries++;
         }
 
-        bool emplace(K const &key, V &value){            
+        bool emplace(K const &key, V &value)
+        {            
             int idx = find_index(key);
 
-            if(idx == -1){
+            if(idx == -1)
+            {
                 return false;
             }
 
@@ -130,7 +150,8 @@ class RobinhoodMap
             return true;
         }
 
-        bool remove(K const &key){
+        bool remove(K const &key)
+        {
             size_t empty_idx = find_index(key);
 
             if(empty_idx == -1){
@@ -139,7 +160,8 @@ class RobinhoodMap
             
             // Perform backwards shifting
             size_t curr_idx = nextIdx(empty_idx);
-            while(entries[curr_idx].isOccupied() && entries[curr_idx].getPSL() > 0){
+            while(entries[curr_idx].isOccupied() && entries[curr_idx].getPSL() > 0)
+            {
                 moveEntry(curr_idx, empty_idx);
                 empty_idx = nextIdx(empty_idx);
                 curr_idx = nextIdx(curr_idx);
@@ -153,14 +175,18 @@ class RobinhoodMap
             return num_entries;
         }
 
-        size_t getCapacity(){
+        size_t getCapacity()
+        {
             return capacity;
         }
         
-        void printEntries(){
-            for(int i = 0; i < capacity; i++){
+        void printEntries()
+        {
+            for(int i = 0; i < capacity; i++)
+            {
                 cout << i << " ";
-                if(entries[i].isEmpty()){
+                if(entries[i].isEmpty())
+                {
                     cout << "NULL NULL" << endl;
                 }
                 else{
@@ -169,7 +195,8 @@ class RobinhoodMap
             }
         }
 
-        double calcAvgPSL(){
+        double calcAvgPSL()
+        {
             double avg_PSL = 0.0;
             for(int i = 0; i < capacity; i++){
                 if(entries[i].isOccupied()){
@@ -180,7 +207,8 @@ class RobinhoodMap
             return avg_PSL/num_entries; 
         }
         
-        size_t calcMaxPSL(){
+        size_t calcMaxPSL()
+        {
             size_t max_PSL = 0;
 
             for(int i = 0; i < capacity; i++){
@@ -192,7 +220,8 @@ class RobinhoodMap
             return max_PSL; 
         }
 
-        Iterator begin() { 
+        Iterator begin() 
+        { 
             size_t curr_idx = 0;
             while(curr_idx < capacity && !entries[curr_idx].isOccupied()){
                 curr_idx++;
@@ -200,7 +229,8 @@ class RobinhoodMap
             return Iterator(&entries[curr_idx], curr_idx, capacity); 
         }
 
-        Iterator end() {
+        Iterator end() 
+        {
             return Iterator(&entries[capacity], capacity, capacity);
         }
     private: 
@@ -210,15 +240,18 @@ class RobinhoodMap
         H hash_func;
         double load_factor;
         
-        size_t convertHash(size_t hash_val){
+        size_t convertHash(size_t hash_val)
+        {
             return hash_val & (capacity - 1);
         }
 
-        size_t nextIdx(size_t idx){
+        size_t nextIdx(size_t idx)
+        {
             return (idx+1) & (capacity - 1);
         }
 
-        unsigned int nextPowerOf2(unsigned int n){
+        unsigned int nextPowerOf2(unsigned int n)
+        {
             n--;
             n |= n >> 1;
             n |= n >> 2;
@@ -229,7 +262,8 @@ class RobinhoodMap
             return n;
         }
 
-        void setEntry(size_t const idx, K const &key, V const &value, size_t const hash_val){
+        void setEntry(size_t const idx, K const &key, V const &value, size_t const hash_val)
+        {
             size_t PSL = calcPSL(hash_val, idx);
 
             entries[idx].setKey(key);
@@ -240,12 +274,14 @@ class RobinhoodMap
        
         }
 
-        size_t calcPSL(size_t hash_val, size_t actual_idx){
+        size_t calcPSL(size_t hash_val, size_t actual_idx)
+        {
             size_t expected_idx = convertHash(hash_val);
             return calcDist(expected_idx, actual_idx);
         }
 
-        size_t calcDist(size_t start_idx, size_t end_idx){
+        size_t calcDist(size_t start_idx, size_t end_idx)
+        {
             size_t dist = end_idx - start_idx;
             if(dist < 0){
                 dist += capacity;
@@ -253,7 +289,8 @@ class RobinhoodMap
             return dist;
         }
 
-        void moveEntry(size_t src_idx, size_t dst_idx){
+        void moveEntry(size_t src_idx, size_t dst_idx)
+        {
             K key = entries[src_idx].getKey();
             V val = entries[src_idx].getValue();
             size_t hash = entries[src_idx].getHash();
@@ -269,7 +306,8 @@ class RobinhoodMap
             entries[dst_idx].setState(OCCUPIED);
         }
 
-        size_t find_index(K const &key){
+        size_t find_index(K const &key)
+        {
             size_t hash_val = hash_func(key, capacity);
             size_t start_idx = convertHash(hash_val);
 
@@ -277,17 +315,20 @@ class RobinhoodMap
                 size_t idx = convertHash(start_idx + i);
                 // Check if the key exists in the 
                 // dictionary, if it does then replace it
-                if(entries[idx].isEmpty()){
+                if(entries[idx].isEmpty())
+                {
                     return -1;
                 }
-                else if(entries[idx].isOccupied() && entries[idx].key_cmp(key)){
+                else if(entries[idx].isOccupied() && entries[idx].key_cmp(key))
+                {
                     return idx;
                 }
             }
             return -1;
         }
         
-        void reallocate(){
+        void reallocate()
+        {
             // Calculate new capacity
             size_t old_capacity = capacity;
             capacity = 2*capacity;
@@ -299,10 +340,13 @@ class RobinhoodMap
             entries = new Entry<K, V>[capacity];
 
             // insert all entries into new_entries
-            for(int i = 0; i < old_capacity; i++){
-                if(!old_entries[i].isOccupied()){
+            for(int i = 0; i < old_capacity; i++)
+            {
+                if(!old_entries[i].isOccupied())
+                {
                     continue;
                 }
+                
                 K key_to_write = old_entries[i].getKey();
                 V val_to_write = old_entries[i].getValue();
 
@@ -310,10 +354,10 @@ class RobinhoodMap
                 size_t hash_val = old_entries[i].getHash();
                 size_t idx = convertHash(hash_val);
                 size_t PSL = 0;
-
                 while(!entries[idx].isEmpty()){
                     // Check if we should swap
-                    if(entries[idx].getPSL() < PSL){
+                    if(entries[idx].getPSL() < PSL)
+                    {
                         std::swap(key_to_write, entries[idx].getKey());
                         std::swap(val_to_write, entries[idx].getValue());
                         std::swap(hash_val, entries[idx].getHash());
@@ -322,8 +366,7 @@ class RobinhoodMap
                     idx = nextIdx(idx);
                     PSL++;
                 }        
-                entries[idx].populate(key_to_write, val_to_write, hash_val);
-                entries[idx].setPSL(PSL);
+                setEntry(idx, key_to_write, val_to_write, hash_val);
             }
 
             // Remove old entries

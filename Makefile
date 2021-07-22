@@ -5,7 +5,7 @@
 
 CC = g++
 CFLAGS = -Wall -g -std=c++11 
-INC = -I/Users/aqho/Desktop/PersonalCodingProjects/HashTable/include
+INC = -I/Users/aqho/Desktop/PersonalCodingProjects/HashMap/include
 
 all: bin/benchmarking bin/test_correctness_linear bin/test_correctness_linear2 bin/test_correctness_robinhood
 
@@ -45,4 +45,4 @@ clean_benchmarks:
 	find bin/ -type f -not -name 'benchmarks.ipynb' -delete
 
 clean_objs: 
-	find out/ -type f -delete 
+	find out/ -type f -delete
